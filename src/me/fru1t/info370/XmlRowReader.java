@@ -3,6 +3,7 @@ package me.fru1t.info370;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -34,7 +35,11 @@ public class XmlRowReader<I> {
 		tableColumns = new HashMap<>();
 		Field[] fields = rowClass.getDeclaredFields();
 		for (Field field : fields) {
-			tableColumns.put(field.getName(), field);
+			if ((field.getModifiers() & Modifier.PUBLIC) > 0 // Is public
+					&& (field.getModifiers() & Modifier.STATIC) == 0 // is not static
+					&& (field.getModifiers() & Modifier.FINAL) == 0) { // is not final
+				tableColumns.put(field.getName(), field);
+			}
 		}
 	}
 	
@@ -57,7 +62,7 @@ public class XmlRowReader<I> {
 		String row = fileScanner.nextLine().trim();
 		
 		// Make sure the line is a row
-		if (!row.substring(0, 4).equals(ROW_START)) {
+		if (row.length() > 4 && !row.substring(0, 4).equals(ROW_START)) {
 			System.out.println("Skipped " + row);
 			return null;
 		}
