@@ -50,7 +50,7 @@ public class XmlRowReader<I> {
 	 * @return
 	 */
 	@Nullable
-	public I next() {
+	public synchronized I next() {
 		// Has the file been read through?
 		if (isComplete || !fileScanner.hasNextLine()) {
 			isComplete = true;
@@ -70,7 +70,6 @@ public class XmlRowReader<I> {
 		try {
 			Matcher xmlMatcher = XML_DELIMETER.matcher(row);
 			I result = tableClass.newInstance();
-			
 			while (xmlMatcher.find()) {
 				String[] attrParts = xmlMatcher.group().split(XML_ATTRIBUTE_DELIMETER);
 				

@@ -75,19 +75,19 @@ public class User {
 	}
 	
 	public int getViews() {
-		return Util.intOrDefault(Views, 0);
+		return Util.pi(Views, 0);
 	}
 	
 	public int getUpVotes() {
-		return Util.intOrDefault(UpVotes, 0);
+		return Util.pi(UpVotes, 0);
 	}
 	
 	public int getDownVotes() {
-		return Util.intOrDefault(DownVotes, 0);
+		return Util.pi(DownVotes, 0);
 	}
 	
 	public int getAge() {
-		return Util.intOrDefault(Age, 0);
+		return Util.pi(Age, 0);
 	}
 
 	@Override
