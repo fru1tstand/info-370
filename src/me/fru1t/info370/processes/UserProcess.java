@@ -2,7 +2,7 @@ package me.fru1t.info370.processes;
 
 import java.sql.PreparedStatement;
 
-import me.fru1t.info370.Database;
+import me.fru1t.info370.Boot;
 import me.fru1t.info370.XmlRowReader;
 import me.fru1t.info370.tables.User;
 
@@ -13,7 +13,9 @@ public class UserProcess implements Runnable {
 	@Override
 	public void run() {
 		try {
-			PreparedStatement stmt = Database.prepareStatement(User.MYSQL_INSERT);
+			PreparedStatement stmt = Boot.getDatabaseConnectionPool()
+					.getConnection()
+					.prepareStatement(User.MYSQL_INSERT);
 			long rows = 0;
 			
 			XmlRowReader<User> reader = new XmlRowReader<User>(USER_XML_FILE_LOCATION, User.class);

@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import me.fru1t.info370.Database;
+import me.fru1t.info370.Boot;
 import me.fru1t.info370.XmlRowReader;
 import me.fru1t.info370.tables.Post;
 
@@ -19,7 +19,10 @@ public class PostProcess implements Runnable {
 				reader = new XmlRowReader<Post>(POST_XML_FILE_LOCATION, Post.class);
 	
 			long rows = 0;
-			PreparedStatement stmt = Database.prepareStatement(Post.MYSQL_INSERT);
+			PreparedStatement stmt = Boot
+					.getDatabaseConnectionPool()
+					.getConnection()
+					.prepareStatement(Post.MYSQL_INSERT);
 			
 			while (!reader.isComplete()) {
 				Post p = reader.next();

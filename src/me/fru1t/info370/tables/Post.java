@@ -3,6 +3,9 @@ package me.fru1t.info370.tables;
 import static me.fru1t.info370.Util.pi;
 import static me.fru1t.info370.Util.getUnixDate;
 
+/**
+ * Represents a complete row within the Post table.
+ */
 public class Post {
 	public static final String MYSQL_INSERT = 
 			"INSERT INTO post (id, post_type_id, "
