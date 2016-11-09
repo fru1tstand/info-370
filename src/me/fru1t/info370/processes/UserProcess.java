@@ -1,7 +1,5 @@
 package me.fru1t.info370.processes;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 
 import me.fru1t.info370.Database;
@@ -9,15 +7,16 @@ import me.fru1t.info370.XmlRowReader;
 import me.fru1t.info370.tables.User;
 
 public class UserProcess implements Runnable {
+	private static final String USER_XML_FILE_LOCATION =
+			"D:\\stack\\stackoverflow\\stackoverflow.com-Users\\Users.xml";
 
 	@Override
 	public void run() {
 		try {
-			Connection connection = DriverManager.getConnection(Database.CONNECTION_STRING);
-			PreparedStatement stmt = connection.prepareStatement(User.MYSQL_INSERT);
+			PreparedStatement stmt = Database.prepareStatement(User.MYSQL_INSERT);
 			long rows = 0;
 			
-			XmlRowReader<User> reader = new XmlRowReader<User>("D:\\stack\\stackoverflow\\stackoverflow.com-Users\\Users.xml", User.class);
+			XmlRowReader<User> reader = new XmlRowReader<User>(USER_XML_FILE_LOCATION, User.class);
 			while (!reader.isComplete()) {
 				User u = reader.next();
 				if (u != null) {

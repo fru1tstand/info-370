@@ -1,7 +1,5 @@
 package me.fru1t.info370.processes;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -11,16 +9,17 @@ import me.fru1t.info370.XmlRowReader;
 import me.fru1t.info370.tables.Post;
 
 public class PostProcess implements Runnable {
+	private static final String POST_XML_FILE_LOCATION =
+			"D:\\stack\\stackoverflow\\stackoverflow.com-Posts\\Posts.xml";
 
 	@Override
 	public void run() {
 		try {
 			XmlRowReader<Post> reader;
-				reader = new XmlRowReader<Post>("D:\\stack\\stackoverflow\\stackoverflow.com-Posts\\Posts.xml", Post.class);
+				reader = new XmlRowReader<Post>(POST_XML_FILE_LOCATION, Post.class);
 	
 			long rows = 0;
-			Connection connection = DriverManager.getConnection(Database.CONNECTION_STRING);
-			PreparedStatement stmt = connection.prepareStatement(Post.MYSQL_INSERT);
+			PreparedStatement stmt = Database.prepareStatement(Post.MYSQL_INSERT);
 			
 			while (!reader.isComplete()) {
 				Post p = reader.next();
