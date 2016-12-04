@@ -28,6 +28,7 @@ This is a simulation of 1,000 people's average day. It's based on 2014 data from
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
 <script>
 var USER_SPEED = "slow";
+var MAXTAGS = 16;
 
 var data = [
   {
@@ -42,6 +43,10 @@ var data = [
     "python": {
       old: 5,
       new: 1
+    }, 
+    "other": {
+    	old:21,
+    	new:85
     }
   },
   {
@@ -56,9 +61,40 @@ var data = [
     "R": {
       old: 5,
       new: 1
+    },    
+    "other": {
+    	old:21,
+    	new:85
     }
   }
-]
+];
+
+var placeHolder = [
+	{"index":0, "focusPoint":{ "x": 380, "y": 365 }, "tag": null, "nodes": []},
+	{"index":1, "focusPoint":{}, "tag": null, "nodes": []},
+	{"index":2, "focusPoint":{}, "tag": null, "nodes": []},
+	{"index":3, "focusPoint":{}, "tag": null, "nodes": []},
+	{"index":4, "focusPoint":{}, "tag": null, "nodes": []},
+	{"index":5, "focusPoint":{}, "tag": null, "nodes": []},
+	{"index":5, "focusPoint":{}, "tag": null, "nodes": []},
+	{"index":7, "focusPoint":{}, "tag": null, "nodes": []},
+	{"index":8, "focusPoint":{}, "tag": null, "nodes": []},
+	{"index":9, "focusPoint":{}, "tag": null, "nodes": []},
+	{"index":10, "focusPoint":{}, "tag": null, "nodes": []},
+	{"index":11, "focusPoint":{}, "tag": null, "nodes": []},
+	{"index":12, "focusPoint":{}, "tag": null, "nodes": []},
+	{"index":13, "focusPoint":{}, "tag": null, "nodes": []},
+	{"index":14, "focusPoint":{}, "tag": null, "nodes": []},
+	{"index":15, "focusPoint":{}, "tag": null, "nodes": []},
+];
+
+// sets the initial coordinates for placeHolder labels
+for (var i = 1; i < MAXTAGS; i++) {
+	placeHolder.focusPoint = {};
+	var theta = 2 * Math.PI / MAXTAGS;
+	placeHolder[i].focusPoint.x = 340 * Math.cos(i * theta)+380;
+	placeHolder[i].focusPoint.y = 340 * Math.sin(i * theta)+365;
+};
 
 var width = 780,
     height = 800,
@@ -68,6 +104,94 @@ var width = 780,
 
 var sched_objs = [],
 	curr_minute = 0;
+
+var tags = [];
+
+
+var currSlice = {};
+var currSliceIndex = 0;
+
+
+// updates the curr_slice to the next
+function updateSlice(currSlice) {
+	var toAdd = [];
+	var toRemove = [];
+
+	var nextSlice = data[currSliceIndex++];
+
+	// do something
+	if (Object.keys(currSlice).length == 0) {
+		currSlice = data[currSliceIndex];
+	} else {
+		// add new tags and update
+		Object.keys(nextSlice).forEach(function(tag, i) {
+			if (!(tag in currSlice)) {
+				currSlice[tag] = nextSlice[tag];
+				toAdd.push({tagName: tag, info: currSlice[tag]});
+			} else {
+				currSlice[tag] = nextSlice[tag];
+				// update placeholder
+			}
+		});
+
+		// remove the ones that don't appear again
+		Object.keys(currSlice).forEach(function(tag, i) {
+			if (!(tag in nextSlice)) {
+				toRemove.push({tag:currSlice[tag]})
+				delete currSlice[tag];
+				// update placeholder
+			} else {
+				// console.log("this tag isn in fact in current slice");
+				// console.log(tag);
+				currSlice[tag] = nextSlice[tag];
+				// update placeholder
+			}
+
+		});
+	}
+
+	for (var i = 0; i < MAXTAGS; i++) {
+		 if (!placeHolder.hasOwnProperty(i)) {
+		   continue;
+		 }
+
+		 if (placeHolder[i].tag in toRemove) {
+		 	var toPop = toAdd.pop();
+		 	placeHolder[i].tag = toPop.tag;
+		 	// placeHolder[i].nodes = call update nodes function
+		 }
+	}
+
+// update nodes should take index and the new data
+
+
+	if (currSliceIndex >= data.length) {
+		currSliceIndex = 0;
+	}
+
+	setTimeout(updateSlice, 10000);
+};
+
+// TODO(Kodlee): impl
+// function updatePlaceHolder(index, tagData) {
+
+// }
+
+updateSlice(); // populates the null
+
+for (var i = 0; i < data.length; i++) {
+	tags = [];
+	// build tags
+
+	Object.keys(data[i]).forEach(function(tag, j) {
+		tags.push(tag);
+	});
+	console.log(tags);
+
+};
+
+
+
 
 var act_codes = [
 	{"index": "0", "short": "Sleeping", "desc": "Sleeping"},
@@ -86,7 +210,7 @@ var act_codes = [
 	{"index": "13", "short": "Volunteering", "desc": "Volunteer Activities"},
 	{"index": "14", "short": "Phone Calls", "desc": "Telephone Calls"},
 	{"index": "15", "short": "Misc.", "desc": "Other"},
-	{"index": "16", "short": "Traveling", "desc": "Traveling"},
+	{"index": "16", "short": "other", "desc": "other"},
 ];
 
 
@@ -106,24 +230,13 @@ var time_notes = [
 	{ "start_minute": 1080, "stop_minute": 1140, "note": "Winding down for the day. From leisure time, people shift to personal care and sleep." },
 	{ "start_minute": 1210, "stop_minute": 1300, "note": "Goodnight. More than 80% of people are asleep and it peaks at 96% around 3:00am." },
 ];
+
 var notes_index = 0;
 
 
 // Activity to put in center of circle arrangement
-var center_act = "Traveling",
+var center_act = "other",
 	center_pt = { "x": 380, "y": 365 };
-
-
-// Coordinates for activities
-var foci = {};
-act_codes.forEach(function(code, i) {
-	if (code.desc == center_act) {
-		foci[code.index] = center_pt;
-	} else {
-		var theta = 2 * Math.PI / (act_codes.length-1);
-		foci[code.index] = {x: 250 * Math.cos(i * theta)+380, y: 250 * Math.sin(i * theta)+365 };
-	}
-});
 
 
 // Start the SVG
@@ -386,31 +499,24 @@ d3.tsv("days-simulated-v2.tsv", function(error, data) {
 
 
 
-function color(activity) {
+function color(exp) {
 
-	var colorByActivity = {
+	var colorByExp = {
 		"0": "#e0d400",
 		"1": "#1c8af9",
-		"2": "#51BC05",
-		"3": "#FF7F00",
-		"4": "#DB32A4",
-		"5": "#00CDF8",
-		"6": "#E63B60",
-		"7": "#8E5649",
-		"8": "#68c99e",
-		"9": "#a477c8",
-		"10": "#5C76EC",
-		"11": "#E773C3",
-		"12": "#799fd2",
-		"13": "#038a6c",
-		"14": "#cc87fa",
-		"15": "#ee8e76",
-		"16": "#bbbbbb",
 	}
 
-	return colorByActivity[activity];
+	return colorByExp[exp];
 
 }
+
+// function fade(newLabel) {
+// 	change.transition().duration(500)
+// 	    .style("opacity", 0)
+// 	    .transition().duration(500)
+// 	    .style("opacity", 1)
+// 	    .text(newLabel);
+// }
 
 
 
