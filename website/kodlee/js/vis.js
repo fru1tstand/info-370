@@ -363,7 +363,7 @@
 			currentSliceIndex = 0;
 		}
 
-		setTimeout(doNextStep, 100);
+		setTimeout(doNextStep, refreshRate);
 		force.resume();
 	}
 	doNextStep();

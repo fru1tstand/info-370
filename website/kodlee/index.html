@@ -14,6 +14,7 @@
 	<!-- The entry element for D3 -->
 	<div id="chart"></div>
 	<div id="data-toggle">Click me to change data</div>
+	<label>Wait time between updates (ms) [press enter to submit]: </label><input type="text" id="speed-toggle" value="100" />
 	<div id="info"></div>
 
 	<script src="js/data2.js"></script>
@@ -21,6 +22,7 @@
 	<script>
 		var data = data2;
 		var dataNum = 2;
+		var refreshRate = 100;
 		(function() {
 			document.getElementById('data-toggle').onclick = function() {
 				if (dataNum == 2) {
@@ -30,7 +32,12 @@
 					data = data2;
 					dataNum = 2;
 				}
-			}
+			};
+			document.getElementById('speed-toggle').onkeydown = function(e) {
+				if (e.keyCode == 13) { //enter key
+					refreshRate = this.value;
+				}
+			};
 		}())
 	</script>
 
