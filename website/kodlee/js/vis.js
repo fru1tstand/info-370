@@ -32,6 +32,10 @@
 
 	var NODE_SPEED_SCALE = 0.4;
 
+	/** Used when creating new nodes, so that they're not all centered and aligned.
+	 * Makes for a more appealing aniamtion */
+	var NODE_START_FUDGE_FACTOR_PX = 10;
+
 	// Fairly absolutely constants
 	var NUM_PLACEHOLDERS = 16;
 	var THETA = 2 * Math.PI / (NUM_PLACEHOLDERS - 1);
@@ -230,8 +234,8 @@
 				newNodes = [];
 				for (j = 0; j < oldUserDelta; j++) {
 					newNodes.push(new Node(
-							VIS_CENTER_PLACEHOLDER.getFocusPointX() + Math.random() * 5,
-							VIS_CENTER_PLACEHOLDER.getFocusPointY() + Math.random() * 5,
+							VIS_CENTER_PLACEHOLDER.getFocusPointX() + Math.random() * NODE_START_FUDGE_FACTOR_PX,
+							VIS_CENTER_PLACEHOLDER.getFocusPointY() + Math.random() * NODE_START_FUDGE_FACTOR_PX,
 							COLORS.OLD_USER,
 							NODE_SIZE_PX));
 				}
@@ -247,8 +251,8 @@
 				newNodes = [];
 				for (j = 0; j < newUserDelta; j++) {
 					newNodes.push(new Node(
-							VIS_CENTER_PLACEHOLDER.getFocusPointX() + Math.random() * 5,
-							VIS_CENTER_PLACEHOLDER.getFocusPointY() + Math.random() * 5,
+							VIS_CENTER_PLACEHOLDER.getFocusPointX() + Math.random() * NODE_START_FUDGE_FACTOR_PX,
+							VIS_CENTER_PLACEHOLDER.getFocusPointY() + Math.random() * NODE_START_FUDGE_FACTOR_PX,
 							COLORS.NEW_USER,
 							NODE_SIZE_PX));
 				}
