@@ -13,8 +13,27 @@
 <body>
 	<!-- The entry element for D3 -->
 	<div id="chart"></div>
+	<div id="data-toggle">Click me to change data</div>
+	<div id="info"></div>
 
 	<script src="js/data2.js"></script>
+	<script src="js/data3.js"></script>
+	<script>
+		var data = data2;
+		var dataNum = 2;
+		(function() {
+			document.getElementById('data-toggle').onclick = function() {
+				if (dataNum == 2) {
+					data = data3;
+					dataNum = 3;
+				} else {
+					data = data2;
+					dataNum = 2;
+				}
+			}
+		}())
+	</script>
+
 	<script src="js/Node.js"></script>
 	<script src="js/ChartPlaceholder.js"></script>
 	<script src="js/ChartActiveTag.js"></script>

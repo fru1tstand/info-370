@@ -353,6 +353,7 @@
 	var currentSliceIndex = 0;
 	var maxDebugTicks = 10000000;
 	var totalTicks = 180;
+	var info = document.getElementById('info');
 	function doNextStep() {
 		if (!isAutomaticallyPlaying || currentSliceIndex > maxDebugTicks) {
 			return;
@@ -368,6 +369,7 @@
 	doNextStep();
 
 	function doD3Refresh() {
+		info.innerHTML = "Showing " + nodes.size() + " nodes on slice " + currentSliceIndex + " with data set " + dataNum;
 		force.resume();
 		setTimeout(doD3Refresh, 100);
 	}
