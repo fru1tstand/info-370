@@ -21,46 +21,23 @@
 		NEW_USER: "#1c8af9"
 	};
 	var NODE_SIZE_PX = 3;
+	var NODE_PADDING_PX = 1;
+
+	var VIS_WIDTH_PX = 780;
+	var VIS_HEIGHT_PX = 800;
+	var VIS_CIRCLE_SIZE_PX = 340;
+
+	var CENTER_FOCUS_X = 380;
+	var CENTER_FOCUS_Y = 365;
+
+	var NODE_SPEED_SCALE = 0.4;
 
 	// Fairly absolutely constants
-	/**
-	 * The total number of labels that will be present.
-	 *
-	 * @define {number}
-	 */
 	var NUM_PLACEHOLDERS = 16;
-
-	/**
-	 * The angle at which each sequential placeholder should be at.
-	 *
-	 * @define {number}
-	 */
 	var THETA = 2 * Math.PI / (NUM_PLACEHOLDERS - 1);
 
-	/**
-	 * The circle size used to create chart placeholders.
-	 *
-	 * @define {number}
-	 */
-	var CIRCLE_SIZE_PX = 340;
-
-	/**
-	 * @type {number}
-	 */
-	var VIS_PADDING_PX = 1;
-
-	/** @define {number} */
-	var VIS_WIDTH_PX = 780;
-	/** @define {number} */
-	var VIS_HEIGHT_PX = 800;
-
-	/** @define {number} */
-	var VIS_CENTER_FOCUS_X = 380;
-	/** @define {number} */
-	var VIS_CENTER_FOCUS_Y = 365;
-
-	var VIS_CENTER_PLACEHOLDER_INDEX = 0;
-	var VIS_CENTER_PLACEHOLDER_NAME = "other";
+	var CENTER_PLACEHOLDER_INDEX = 0;
+	var CENTER_PLACEHOLDER_NAME = "StackOverflow";
 
 
 	// Temporary variables
@@ -72,25 +49,25 @@
 	var chartPlaceholders = [];
 
 	// Define the center placeholder
-	chartPlaceholders[VIS_CENTER_PLACEHOLDER_INDEX] = new ChartPlaceholder(
-			VIS_CENTER_PLACEHOLDER_INDEX,
-			VIS_CENTER_FOCUS_X,
-			VIS_CENTER_FOCUS_Y
+	chartPlaceholders[CENTER_PLACEHOLDER_INDEX] = new ChartPlaceholder(
+			CENTER_PLACEHOLDER_INDEX,
+			CENTER_FOCUS_X,
+			CENTER_FOCUS_Y
 	);
 	/** @type {ChartPlaceholder} */
-	var VIS_CENTER_PLACEHOLDER = chartPlaceholders[VIS_CENTER_PLACEHOLDER_INDEX];
+	var VIS_CENTER_PLACEHOLDER = chartPlaceholders[CENTER_PLACEHOLDER_INDEX];
 	VIS_CENTER_PLACEHOLDER.setIncomingNodeCallback(function(/** @type {!Node} */ node) {
 		// When a node is heading to the center, we want to opacity to reach 0.
 		node.targetOpacity = 0;
 	});
-	VIS_CENTER_PLACEHOLDER.setDisplayString(VIS_CENTER_PLACEHOLDER_NAME);
+	VIS_CENTER_PLACEHOLDER.setDisplayString(CENTER_PLACEHOLDER_NAME);
 
 	// Define the rest of the placeholders
 	for (i = 1; i < NUM_PLACEHOLDERS; i++) {
 		chartPlaceholders[i] = new ChartPlaceholder(
 				i,
-				CIRCLE_SIZE_PX * Math.cos(i * THETA) + VIS_CENTER_FOCUS_X,
-				CIRCLE_SIZE_PX * Math.sin(i * THETA) + VIS_CENTER_FOCUS_Y);
+				VIS_CIRCLE_SIZE_PX * Math.cos(i * THETA) + CENTER_FOCUS_X,
+				VIS_CIRCLE_SIZE_PX * Math.sin(i * THETA) + CENTER_FOCUS_Y);
 		chartPlaceholders[i].setIncomingNodeCallback(function(/** @type {!Node} */ node) {
 			// When a node is heading out to any other tag, we want the opacity to reach 1.
 			node.targetOpacity = 1;
@@ -105,13 +82,14 @@
 			.attr("height", VIS_HEIGHT_PX);
 
 	// Creates a D3 force layout that helps with the animation and collisions
-	d3.layout.force()
+	var force = d3.layout.force()
 			.size([VIS_WIDTH_PX, VIS_HEIGHT_PX])
 			.gravity(0)
 			.charge(0)
 			.friction(.9)
 			.on("tick", tick)
 			.start();
+
 
 	/**
 	 * Holds the currently displaying tag in an object mapped from "tagName" => ChartActiveTag objects.
@@ -121,8 +99,8 @@
 	var currentSlice = { };
 
 	// Fill out current slice information with "other" and filler.
-	currentSlice[VIS_CENTER_PLACEHOLDER_NAME] = new ChartActiveTag(VIS_CENTER_PLACEHOLDER_INDEX);
-	currentSlice[VIS_CENTER_PLACEHOLDER_NAME].tagName = VIS_CENTER_PLACEHOLDER_NAME;
+	currentSlice[CENTER_PLACEHOLDER_NAME] = new ChartActiveTag(CENTER_PLACEHOLDER_INDEX);
+	currentSlice[CENTER_PLACEHOLDER_NAME].tagName = CENTER_PLACEHOLDER_NAME;
 	for (i = 1; i < NUM_PLACEHOLDERS; i++) {
 		// This i value is very important as it is what dictates which placeholder the tag will display on.
 		currentSlice[i] = new ChartActiveTag(i);
@@ -139,16 +117,16 @@
 			.append("text")
 			.attr("class", "tag-label")
 			.attr("x", function(chartPlaceholder) {
-				if (chartPlaceholder.getIndex() == VIS_CENTER_PLACEHOLDER_INDEX) {
-					return VIS_CENTER_FOCUS_X;
+				if (chartPlaceholder.getIndex() == CENTER_PLACEHOLDER_INDEX) {
+					return CENTER_FOCUS_X;
 				}
-				return CIRCLE_SIZE_PX * Math.cos(chartPlaceholder.getIndex() * THETA) + VIS_CENTER_FOCUS_X;
+				return VIS_CIRCLE_SIZE_PX * Math.cos(chartPlaceholder.getIndex() * THETA) + CENTER_FOCUS_X;
 			})
 			.attr("y", function(chartPlaceholder) {
-				if (chartPlaceholder.getIndex() == VIS_CENTER_PLACEHOLDER_INDEX) {
-					return VIS_CENTER_FOCUS_Y;
+				if (chartPlaceholder.getIndex() == CENTER_PLACEHOLDER_INDEX) {
+					return CENTER_FOCUS_Y;
 				}
-				return CIRCLE_SIZE_PX * Math.sin(chartPlaceholder.getIndex() * THETA) + VIS_CENTER_FOCUS_Y;
+				return VIS_CIRCLE_SIZE_PX * Math.sin(chartPlaceholder.getIndex() * THETA) + CENTER_FOCUS_Y;
 			});
 	labels.append("tspan")
 			.attr("x", function() { return d3.select(this.parentNode).attr("x"); })
@@ -206,6 +184,9 @@
 			tagToUpdate.tagName = tagName;
 		}
 
+		// fake update other
+		currentSlice[CENTER_PLACEHOLDER_NAME].lastUpdateSliceNumber = sliceNumber;
+
 		// Check for old tags and while we're at it, update the chart placeholders
 		for (tagName in currentSlice) {
 			if (!currentSlice.hasOwnProperty(tagName)) {
@@ -227,6 +208,12 @@
 
 				// Update the name
 				placeholder.setDisplayString(currentTagToUpdate.tagName);
+
+				// Return our users from whence they came from
+				VIS_CENTER_PLACEHOLDER
+						.addOldUserNodes(placeholder.removeOldUserNodes(placeholder.getOldUserNodesCount()));
+				VIS_CENTER_PLACEHOLDER
+						.addNewUserNodes(placeholder.removeNewUserNodes(placeholder.getNewUserNodesCount()));
 			}
 
 			// Add or remove nodes in the underlying data structure first
@@ -240,8 +227,8 @@
 				newNodes = [];
 				for (j = 0; j < oldUserDelta; j++) {
 					newNodes.push(new Node(
-							VIS_CENTER_PLACEHOLDER.getFocusPointX(),
-							VIS_CENTER_PLACEHOLDER.getFocusPointY(),
+							VIS_CENTER_PLACEHOLDER.getFocusPointX() + Math.random() * 5,
+							VIS_CENTER_PLACEHOLDER.getFocusPointY() + Math.random() * 5,
 							COLORS.OLD_USER,
 							NODE_SIZE_PX));
 				}
@@ -257,8 +244,8 @@
 				newNodes = [];
 				for (j = 0; j < newUserDelta; j++) {
 					newNodes.push(new Node(
-							VIS_CENTER_PLACEHOLDER.getFocusPointX(),
-							VIS_CENTER_PLACEHOLDER.getFocusPointY(),
+							VIS_CENTER_PLACEHOLDER.getFocusPointX() + Math.random() * 5,
+							VIS_CENTER_PLACEHOLDER.getFocusPointY() + Math.random() * 5,
 							COLORS.NEW_USER,
 							NODE_SIZE_PX));
 				}
@@ -306,21 +293,20 @@
 
 	/**
 	 * This function is called every animation frame to move the nodes and perform collision calculations.
-	 *
-	 * @param e
 	 */
 	function tick(e) {
-		var delta = 0.04 * e.alpha;
+		var delta = NODE_SPEED_SCALE * e.alpha;
+		var x, y;
 
 		forAllActiveNodes(function(/** @type {!Node} */ node) {
-			node.x += (node.target.x - node.x) * delta;
-			node.y += (node.target.y - node.y) * delta;
-
+			x = node.x + (node.target.x - node.x) * (delta );
+			y = node.y + (node.target.y - node.y) * (delta );
+			node.x = (isNaN(x) ? node.x : x);
+			node.y = (isNaN(y) ? node.y : y);
 			if (node.opacity != node.targetOpacity) {
 				node.opacity += (node.targetOpacity - node.opacity) * delta;
 			}
 		});
-
 		nodes
 				.each(collide(.5))
 				.style("fill", function(node) { return node.color; })
@@ -337,7 +323,7 @@
 	function collide(alpha) {
 		var quadtree = d3.geom.quadtree(nodesData);
 		return function(d) {
-			var r = d.radius + NODE_SIZE_PX + VIS_PADDING_PX,
+			var r = d.radius + NODE_SIZE_PX + NODE_PADDING_PX,
 					nx1 = d.x - r,
 					nx2 = d.x + r,
 					ny1 = d.y - r,
@@ -347,7 +333,7 @@
 					var x = d.x - quad.point.x,
 							y = d.y - quad.point.y,
 							l = Math.sqrt(x * x + y * y),
-							r = d.radius + quad.point.radius + (d.act !== quad.point.act) * VIS_PADDING_PX;
+							r = d.radius + quad.point.radius + (d.act !== quad.point.act) * NODE_PADDING_PX;
 					if (l < r) {
 						l = (l - r) / l * alpha;
 						d.x -= x *= l;
@@ -365,17 +351,25 @@
 	// Vis controls
 	var isAutomaticallyPlaying = true;
 	var currentSliceIndex = 0;
-	var maxDebugTicks = 5;
+	var maxDebugTicks = 10000000;
+	var totalTicks = 180;
 	function doNextStep() {
 		if (!isAutomaticallyPlaying || currentSliceIndex > maxDebugTicks) {
 			return;
 		}
 		updateSlice(currentSliceIndex++);
-		if (currentSliceIndex > data.length) {
+		if (currentSliceIndex >= totalTicks) {
 			currentSliceIndex = 0;
 		}
 
-		setTimeout(doNextStep, 5000);
+		setTimeout(doNextStep, 100);
+		force.resume();
 	}
 	doNextStep();
+
+	function doD3Refresh() {
+		force.resume();
+		setTimeout(doD3Refresh, 100);
+	}
+	doD3Refresh();
 } ());

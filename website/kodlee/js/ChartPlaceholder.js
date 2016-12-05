@@ -132,7 +132,6 @@ function ChartPlaceholder(index, focusPointX, focusPointY) {
 	 * @param {!Node[]} nodes
 	 */
 	this.addNewUserNodes = function(nodes) {
-		console.log("Adding a node to " + this.displayString_);
 		for (var i = 0; i < nodes.length; i++) {
 			nodes[i].target = this.focusPoint_;
 			if (!!this.incomingNodeCallback_) {
@@ -147,7 +146,6 @@ function ChartPlaceholder(index, focusPointX, focusPointY) {
 	 * @param {!Node[]} nodes
 	 */
 	this.addOldUserNodes = function(nodes) {
-		console.log("Adding a node to " + this.displayString_);
 		for (var i = 0; i < nodes.length; i++) {
 			nodes[i].target = this.focusPoint_;
 			if (!!this.incomingNodeCallback_) {
@@ -164,7 +162,6 @@ function ChartPlaceholder(index, focusPointX, focusPointY) {
 	 * @returns {!Node[]}
 	 */
 	this.removeNewUserNodes = function(numberToRemove) {
-		console.log("Removing a node to " + this.displayString_ + "; " + numberToRemove);
 		numberToRemove = (numberToRemove > this.getNewUserNodesCount()) ? this.getNewUserNodesCount() : numberToRemove;
 		var result = this.newUserNodes_.slice(0, numberToRemove);
 		this.newUserNodes_ = this.newUserNodes_.slice(numberToRemove);
@@ -178,7 +175,6 @@ function ChartPlaceholder(index, focusPointX, focusPointY) {
 	 * @returns {!Node[]}
 	 */
 	this.removeOldUserNodes = function(numberToRemove) {
-		console.log("Removing a node to " + this.displayString_ + "; " + numberToRemove);
 		numberToRemove = (numberToRemove > this.getOldUserNodesCount()) ? this.getOldUserNodesCount() : numberToRemove;
 		var result = this.oldUserNodes_.slice(0, numberToRemove);
 		this.oldUserNodes_ = this.oldUserNodes_.slice(numberToRemove);
@@ -214,8 +210,8 @@ function ChartPlaceholder(index, focusPointX, focusPointY) {
 	this.purgeHiddenNodes = function() {
 		var result = [];
 		this.newUserNodes_.forEach(function(node) {
-			if (node.opacity != 0) {
-				result.append(node);
+			if (node.opacity > 0.01) {
+				result.push(node);
 			}
 		});
 		this.newUserNodes_ = result;
@@ -223,7 +219,7 @@ function ChartPlaceholder(index, focusPointX, focusPointY) {
 		result = [];
 		this.oldUserNodes_.forEach(function(node) {
 			if (node.opacity != 0) {
-				result.append(node);
+				result.push(node);
 			}
 		});
 		this.oldUserNodes_ = result;
