@@ -81,6 +81,9 @@
 			.attr("width", VIS_WIDTH_PX)
 			.attr("height", VIS_HEIGHT_PX);
 
+	var nodesLayer = svg.append('g');
+	var textLayer = svg.append('g');
+
 	// Creates a D3 force layout that helps with the animation and collisions
 	var force = d3.layout.force()
 			.size([VIS_WIDTH_PX, VIS_HEIGHT_PX])
@@ -107,11 +110,11 @@
 	}
 
 	// Is and always will hold references to all nodes
-	var nodes = svg.selectAll("circle");
+	var nodes = nodesLayer.selectAll("circle");
 	var nodesData = [];
 
 	// Add text onto the SVG
-	var labels = svg.selectAll("text")
+	var labels = textLayer.selectAll("text")
 			.data(chartPlaceholders)
 			.enter()
 			.append("text")
@@ -268,10 +271,10 @@
 		});
 
 		// Then we call #exit() on d3 which removes the nodes that should go away
-		svg.selectAll("circle").data(allNodes).exit().remove();
+		nodesLayer.selectAll("circle").data(allNodes).exit().remove();
 
 		// Then we call #enter and introduce the new nodes that should appear
-		svg.selectAll("circle") // Get all existing circles
+		nodesLayer.selectAll("circle") // Get all existing circles
 				.data(allNodes) // Merge them with the underlying data
 				.enter() // Select the ones that don't exist in the vis
 				.append("circle") // Add the <circle> tag
@@ -279,11 +282,11 @@
 				.style("fill", function(node) { return node.color; }); // And color
 
 		// Then we update the nodes global variable for use later
-		nodes = svg.selectAll("circle");
+		nodes = nodesLayer.selectAll("circle");
 		nodesData = allNodes;
 
 		// Update the labels on the board
-		svg.selectAll("text")
+		textLayer.selectAll("text")
 				.data(chartPlaceholders)
 				.select("tspan")
 				.text(function(chartPlaceholder) {
