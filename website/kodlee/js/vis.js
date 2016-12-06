@@ -29,8 +29,8 @@
 	var VIS_HEIGHT_PX = 800;
 	var VIS_CIRCLE_SIZE_PX = 340;
 
-	var CENTER_FOCUS_X = 380;
-	var CENTER_FOCUS_Y = 365;
+	var CENTER_FOCUS_X = VIS_WIDTH_PX / 2;
+	var CENTER_FOCUS_Y = VIS_HEIGHT_PX / 2;
 
 	var NODE_SPEED_SCALE = 0.4;
 
@@ -405,7 +405,7 @@
 		if (currentSliceIndex >= dataMaxTicks) {
 			currentSliceIndex = 0;
 		}
-		sliceRangeElement.max = dataMaxTicks;
+		sliceRangeElement.max = dataMaxTicks - 1;
 		doNextStep(true);
 	};
 	document.getElementById('speed-toggle').onkeydown = function(e) {
