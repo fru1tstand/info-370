@@ -20,18 +20,26 @@
 
 	<script src="js/data2.js"></script>
 	<script src="js/data3.js"></script>
+	<script src="js/data4.js"></script>
 	<script>
 		var data = data2;
 		var dataNum = 2;
+		var dataMaxTicks = 180;
 		var refreshRate = 100;
 		(function() {
 			document.getElementById('data-toggle').onclick = function() {
 				if (dataNum == 2) {
 					data = data3;
 					dataNum = 3;
-				} else {
+					dataMaxTicks = 181;
+				} else if (dataNum == 3) {
+					data = data4;
+					dataNum = 4;
+					dataMaxTicks = 219;
+				} else if (dataNum == 4) {
 					data = data2;
 					dataNum = 2;
+					dataMaxTicks = 180;
 				}
 			};
 			document.getElementById('speed-toggle').onkeydown = function(e) {

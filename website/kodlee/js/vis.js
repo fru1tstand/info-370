@@ -204,7 +204,7 @@
 			var placeholder = chartPlaceholders[currentTagToUpdate.placeholderIndex];
 
 			// If the tag is old, swap it with a queued new tag
-			if (currentSlice[tagName].lastUpdateSliceNumber != sliceNumber) {
+			if (currentSlice[tagName].lastUpdateSliceNumber != sliceNumber && newTags.length != 0) {
 				var nextNewTag = /** @type {ChartActiveTag} */ newTags.pop();
 				// Make sure to swap over that placeholder index to keep it in order!!!
 				nextNewTag.placeholderIndex = currentTagToUpdate.placeholderIndex;
@@ -366,7 +366,7 @@
 			return;
 		}
 		updateSlice(currentSliceIndex++);
-		if (currentSliceIndex >= totalTicks) {
+		if (currentSliceIndex >= dataMaxTicks) {
 			currentSliceIndex = 0;
 		}
 
