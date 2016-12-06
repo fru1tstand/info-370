@@ -2,6 +2,8 @@
  * Contains the logic for the visualization.
  */
 (function() {
+	var data = data2;
+
 	// Sanity check
 	if (typeof ChartPlaceholder == 'undefined') {
 		throw "ChartPlaceholder wasn't found and is a required dependency.";
@@ -23,7 +25,7 @@
 	var NODE_SIZE_PX = 3;
 	var NODE_PADDING_PX = 1;
 
-	var VIS_WIDTH_PX = 780;
+	var VIS_WIDTH_PX = 850;
 	var VIS_HEIGHT_PX = 800;
 	var VIS_CIRCLE_SIZE_PX = 340;
 
@@ -357,28 +359,116 @@
 
 	// Vis controls
 	var isAutomaticallyPlaying = true;
-	var currentSliceIndex = 0;
+	var currentSliceIndex = -1;
 	var maxDebugTicks = 10000000;
-	var totalTicks = 180;
 	var info = document.getElementById('info');
-	function doNextStep() {
-		if (!isAutomaticallyPlaying || currentSliceIndex > maxDebugTicks) {
+	var sliceElement = document.getElementById('slice');
+	var titleElement = document.getElementById('title');
+	var sliceRangeElement = document.getElementById('slice-range');
+	var dataNum = 2;
+	var dataMaxTicks = 180;
+	var refreshRate = 500;
+	var startingWeek = 0;
+	var startingYear = 2010;
+	var animationTimerInt = null;
+
+	sliceElement.onkeydown = function(e) {
+		if (e.keyCode == 13) {
+			currentSliceIndex = this.value;
+			doNextStep(true);
+		}
+	};
+	sliceRangeElement.oninput = function() {
+		currentSliceIndex = this.value;
+		doNextStep(true);
+	};
+	document.getElementById('data-toggle').onclick = function() {
+		if (dataNum == 2) {
+			data = data3;
+			dataNum = 3;
+			dataMaxTicks = 181;
+			startingYear = 2010;
+			startingWeek = 0;
+		} else if (dataNum == 3) {
+			data = data4;
+			dataNum = 4;
+			dataMaxTicks = 219;
+			startingYear = 2008;
+			startingWeek = 30;
+		} else if (dataNum == 4) {
+			data = data2;
+			dataNum = 2;
+			dataMaxTicks = 180;
+			startingYear = 2010;
+			startingWeek = 0;
+		}
+		if (currentSliceIndex >= dataMaxTicks) {
+			currentSliceIndex = 0;
+		}
+		sliceRangeElement.max = dataMaxTicks;
+		doNextStep(true);
+	};
+	document.getElementById('speed-toggle').onkeydown = function(e) {
+		if (e.keyCode == 13) { //enter key
+			refreshRate = this.value;
+		}
+	};
+	document.getElementById('pause').onclick = function() {
+		if (isAutomaticallyPlaying) {
+			isAutomaticallyPlaying = false;
+		} else {
+			isAutomaticallyPlaying = true;
+			doNextStep(false);
+		}
+	};
+	document.getElementById('step-back-1').onclick = function() {
+		isAutomaticallyPlaying = false;
+		currentSliceIndex--;
+		if (currentSliceIndex < 0) {
+			currentSliceIndex = dataMaxTicks - 1;
+		}
+		sliceElement.value = currentSliceIndex;
+		doNextStep(true);
+	};
+	document.getElementById('step-forward-1').onclick = function() {
+		isAutomaticallyPlaying = false;
+		sliceElement.value = currentSliceIndex;
+		currentSliceIndex++;
+		doNextStep(true);
+	};
+
+	function doNextStep(forceStep) {
+		if (!isAutomaticallyPlaying && !forceStep) {
 			return;
 		}
-		updateSlice(currentSliceIndex++);
+
 		if (currentSliceIndex >= dataMaxTicks) {
 			currentSliceIndex = 0;
 		}
 
-		setTimeout(doNextStep, refreshRate);
+		updateSlice((forceStep) ? currentSliceIndex : ++currentSliceIndex);
+		sliceElement.value = currentSliceIndex;
+		sliceRangeElement.value = currentSliceIndex;
+		updateTitle();
+
+		if (!forceStep) {
+			setTimeout(function() { doNextStep(false); }, refreshRate);
+		}
 		force.resume();
 	}
-	doNextStep();
+	doNextStep(false);
 
 	function doD3Refresh() {
-		info.innerHTML = "Showing " + nodes.size() + " nodes on slice " + currentSliceIndex + " with data set " + dataNum;
+		info.innerHTML = "Showing " + nodes.size() + " nodes with data set " + dataNum;
 		force.resume();
 		setTimeout(doD3Refresh, 100);
 	}
 	doD3Refresh();
+
+	function updateTitle() {
+		titleElement.innerHTML =
+				(startingYear + Math.floor((currentSliceIndex * 2 + startingWeek) / 54))
+				+ " week " +
+				+ ((startingWeek + currentSliceIndex * 2) % 54);
+	}
 } ());

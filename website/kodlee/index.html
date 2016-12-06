@@ -2,53 +2,69 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Title</title>
+	<title>A Day in the Life of an Average StackOverflow Tag</title>
 
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 	<style>
+		body {
+			text-align: center;
+		}
+
 		* {
 			font-family: roboto, sans-serif;
+		}
+		span, label {
+			user-select: none;
+			-moz-user-select: none;
+			-webkit-user-select: none;
+		}
+
+		span:hover {
+			color: #999;
+			cursor: pointer;
+		}
+
+
+		#debug-controller-label {
+			font-size: 10px;
+			color: #CCC;
+			cursor: pointer;
+		}
+		.controller {
+			display: none;
+		}
+		.controller:checked + div {
+			display: none;
+		}
+
+		#chart {
+			display: inline-block;
+		}
+		#slice-range {
+			width: 700px;
 		}
 	</style>
 </head>
 <body>
 	<!-- The entry element for D3 -->
 	<div id="chart"></div>
-	<div id="data-toggle">Click me to change data</div>
-	<label>Wait time between updates (ms) [press enter to submit]: </label><input type="text" id="speed-toggle" value="100" />
-	<div id="info"></div>
+	<br /><br />
+	<h2 id="title"></h2>
+	<input type="range" id="slice-range" max="180" value="0" /><br />
+	<span id="step-back-1">-1 Slice</span> | <span id="pause">Pause/Play</span> | <span id="step-forward-1">+1 Slice</span><br />
+	<br /><br />
+	<label id="debug-controller-label" for="debug-controller">More...</label>
+	<input type="checkbox" class="controller" checked="checked" id="debug-controller" />
+	<div>
+		<span id="data-toggle">Click me to change data</span><br />
+		<label>Wait time between updates (ms) [press enter to submit]: </label><input type="text" id="speed-toggle" value="500" /><br />
+		<label>Slice: </label><input type="text" id="slice" value="0" /><br />
+		<div id="info"></div>
+	</div>
 
 	<script src="js/data2.js"></script>
 	<script src="js/data3.js"></script>
 	<script src="js/data4.js"></script>
-	<script>
-		var data = data2;
-		var dataNum = 2;
-		var dataMaxTicks = 180;
-		var refreshRate = 100;
-		(function() {
-			document.getElementById('data-toggle').onclick = function() {
-				if (dataNum == 2) {
-					data = data3;
-					dataNum = 3;
-					dataMaxTicks = 181;
-				} else if (dataNum == 3) {
-					data = data4;
-					dataNum = 4;
-					dataMaxTicks = 219;
-				} else if (dataNum == 4) {
-					data = data2;
-					dataNum = 2;
-					dataMaxTicks = 180;
-				}
-			};
-			document.getElementById('speed-toggle').onkeydown = function(e) {
-				if (e.keyCode == 13) { //enter key
-					refreshRate = this.value;
-				}
-			};
-		}())
-	</script>
 
 	<script src="js/Node.js"></script>
 	<script src="js/ChartPlaceholder.js"></script>
